@@ -1,0 +1,26 @@
+<head>
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.3/socket.io.js' type='text/javascript'></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  <link rel="stylesheet" href="./style.css">
+  <script src="./script.js"></script>
+
+  <script>
+    userSettings = {
+      baseDuration: 60, //base timer duration
+      subUpdate: { //timer updates for new subs
+        subsThreshold: 1, //updateTimer each new {subsThreshold} subs,
+        durationPerUpdate: 0.5 //the duration added for each sub update
+      },
+      durationPerDollar: 3 //the duration added for each dollar donated
+    }
+  </script>
+</head>
+
+<body>
+  <p id=sp onclick="App.setUp(0);">חיבור לסטרימר פלוס עדין לא בוצע, יש לפתוח את התוכנה שתפעל ברקע.</p>
+  <p id=sl>חיבור לסטריםלאבס נכשל! זו יכולה להיות בעייה של ניתוק בחיבור, או מפתח חיבור שגוי.</p>
+  <h1 id="counter" onclick="try{App.setUp(1)} catch(e){alert(e)} " ondblclick="App.Reset(0)">
+    ממתין לחיבור
+  </h1>
+</body>
