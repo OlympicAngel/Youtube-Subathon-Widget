@@ -10,12 +10,21 @@ var userSettings = {
 class TimerApp {
     /** @type {Element} */
     #ElementReference;
+
     /**
      * Creates new timer
      * @param {String} selector the html selector for displaying the timer at
      */
     constructor(selector) {
         this.#ElementReference = document.querySelector(selector);
+        this.subcount = new Subcount();
+        //load time from memory or set it if none
+        if (localStorage.startTime) {
+            this.startTime = new Date(localStorage.startTime);
+        } else {
+            this.startTime = new Date();
+            localStorage.startTime = this.startTime
+        }
         this.ini()
     }
 
@@ -24,8 +33,10 @@ class TimerApp {
     }
 
     get duration() {
-        //calc timer here
-        return (this.startTime - Date.now()) / 1000 + userSettings.baseDuration * 60
+        const totalDuration = userSettings.baseDuration * 60 + //base duration
+            this.subcount.addedDuration; //time from new subs
+
+        return (this.startTime - Date.now()) / 1000 + totalDuration
     }
 
     /**
@@ -33,7 +44,7 @@ class TimerApp {
      */
     async ini() {
         this.html = "טוען טימר";
-        this.startTime = new Date();
+        await sleep(1000)
         this.updateInterval = setInterval(this.updateTimer.bind(this), 1000);
     }
 
@@ -76,6 +87,49 @@ class TimerApp {
             i < elements.length; i++) {
             this.#ElementReference.appendChild(elements[i])
         }
+    }
+}
+
+class Subcount {
+    constructor() {
+        this.startedAt = Number(localStorage.subsStartedAt) || 0;
+        this.maxCount = Number(localStorage.subsMaxCount) || -1;
+    }
+
+    /**
+     * updates each change in subcount
+     * @param {Number} newCount 
+     */
+    update(newCount) {
+        //initial values
+        if (this.maxCount == -1) {
+            this.startedAt = newCount;
+            localStorage.subsStartedAt = newCount;
+            this.maxCount = newCount;
+            return;
+        }
+        //if new is less the max - exit as there is no update needed.
+        if (newCount <= this.maxCount)
+            return;
+
+        const olderAddedDuration = this.addedDuration;
+        this.maxCount = newCount; //updates subcount 
+        localStorage.subsMaxCount = newCount;
+        const newAddedDuration = this.addedDuration //will now calc with the added subs
+
+        //if value didnt changed
+        if (newAddedDuration == olderAddedDuration)
+            return;
+
+        //TODO: call GUI update of added values
+    }
+
+    /**
+     * calcs the additive time from subcount
+     * @returns {Number}
+    */
+    get addedDuration() {
+        return Math.floor((this.maxCount - this.startedAt) / userSettings.subUpdate.subsThreshold) * userSettings.subUpdate.durationPerUpdate * 60
     }
 }
 
