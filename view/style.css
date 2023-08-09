@@ -1,35 +1,49 @@
+* {
+    box-sizing: content-box;
+}
+
 h1 {
+    display: flex;
     font-family: "secular one", heebo;
-    font-size: 20vmin;
-    text-align: center;
-    margin: auto;
-    top: 0;
-    left: 0;
+    font-size: min(20vmin, calc(100vw / 10 * 2));
     position: absolute;
-    bottom: 0;
-    right: 0;
+    inset: 0;
+    margin: auto;
     width: fit-content;
     height: fit-content;
     color: #fff;
     text-shadow: 0 1vmin #000, 0 0.5vmin 2vmin #000;
     cursor: pointer;
-}
+    flex-wrap: wrap;
+    justify-content: center;
 
-h1:hover {
-    color: red;
-}
+    >span {
+        line-height: 1em;
+        display: block;
+        height: 1em;
+        text-align: center;
+    }
 
-h1:hover::before {
-    content: "לחיצה כפולה לאיפוס הטיימר.";
-    display: "block";
-    position: absolute;
-    width: 100%;
-    font-size: 40%;
-    line-height: 100%;
-    inset: 0;
-    top: auto;
-    margin: auto;
-    transform: translateY(100%);
+    >span.number {
+        aspect-ratio: 0.6;
+    }
+
+    >span.dots {
+        animation: flash 4s infinite ease-in-out;
+        line-height: 80%;
+    }
+
+    &:hover {
+        color: red;
+
+        &::before {
+            content: "לחיצה כפולה לאיפוס הטיימר.";
+            width: 100%;
+            inset: 0;
+            font-size: 40%;
+            text-align: center;
+        }
+    }
 }
 
 body {

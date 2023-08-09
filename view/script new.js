@@ -1,5 +1,5 @@
 var userSettings = {
-    baseDuration: 10.1, //base timer duration
+    baseDuration: 60, //base timer duration
     subUpdate: { //timer updates for new subs
         subsThreshold: 1, //updateTimer each new {subsThreshold} subs,
         durationPerUpdate: 0.5 //the duration added for each sub update
@@ -50,6 +50,11 @@ class TimerApp {
         timeStr.split("").reverse().forEach(letter => {
             const span = document.createElement("span");
             span.innerHTML = letter;
+            span.className = "number"
+            if (isNaN(letter))
+                span.className = "char"
+            if (letter == ":")
+                span.className = "dots"
             elements.push(span)
         })
         //for each existing DOM span - check if update needed
@@ -94,7 +99,7 @@ function format(time) {
     ret += "" + secs;
 
     if (time <= 0)
-        ret = "סוף הלייב!"
+        ret = "סוף הלייב!".split("").reverse().join("");
     return ret;
 }
 const sleep = (ms) => new Promise((res) => setTimeout(res, ms))
