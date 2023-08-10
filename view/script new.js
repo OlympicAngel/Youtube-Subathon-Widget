@@ -9,15 +9,24 @@ var userSettings = {
 
 class TimerApp {
     /** @type {Element} */
-    #ElementReference;
+    #TimerContainer;
+    /** @type {Element} */
+    #AnimationContainer;
 
     /**
      * Creates new timer
      * @param {String} selector the html selector for displaying the timer at
      */
     constructor(selector) {
-        this.#ElementReference = document.querySelector(selector);
-        this.subcount = new Subcount();
+        const parent = document.querySelector(selector);
+        parent.innerHTML = ("<div class='animations'></div>"); //clear older html
+        this.#AnimationContainer = parent.querySelector(".animations")
+
+        this.#TimerContainer = document.createElement("div")
+        this.#TimerContainer.className = "timer"
+        parent.appendChild(this.#TimerContainer)
+
+        this.subcount = new Subcount(this);
         //load time from memory or set it if none
         if (localStorage.startTime) {
             this.startTime = new Date(localStorage.startTime);
@@ -29,7 +38,7 @@ class TimerApp {
     }
 
     set html(html) {
-        this.#ElementReference.innerHTML = html;
+        this.#TimerContainer.innerHTML = html;
     }
 
     get duration() {
@@ -43,8 +52,9 @@ class TimerApp {
      * Start load of the timer & ws connections
      */
     async ini() {
-        this.html = "טוען טימר";
-        await sleep(1000)
+        this.html = "מתחיל טיימר";
+        await sleep(250);
+        this.updateTimer();
         this.updateInterval = setInterval(this.updateTimer.bind(this), 1000);
     }
 
@@ -69,10 +79,11 @@ class TimerApp {
             elements.push(span)
         })
         //for each existing DOM span - check if update needed
-        this.#ElementReference.childNodes.forEach(((child, index, p) => {
+        const startingLength = this.#TimerContainer.childNodes.length; //saveing this outside as when removing elements (if needed) will change this number
+        this.#TimerContainer.childNodes.forEach(((child, index) => {
 
             //if there is more DOM spans then needed
-            if (elements.length < p.length - index)
+            if (elements.length < startingLength - index)
                 return child.remove();
 
             //if content is the same - keep;
@@ -83,15 +94,30 @@ class TimerApp {
         }))
 
         //if need to add new spans to DOM
-        for (let i = this.#ElementReference.childNodes.length;
+        for (let i = this.#TimerContainer.childNodes.length;
             i < elements.length; i++) {
-            this.#ElementReference.appendChild(elements[i])
+            this.#TimerContainer.appendChild(elements[i])
         }
+    }
+
+    async VisualAddTime(addedTime) {
+        const fly = document.createElement("fly");
+        fly.innerHTML = "<warp>" + format(addedTime) + " +</warp"
+        this.#AnimationContainer.appendChild(fly);
+        const style = getComputedStyle(fly)
+        const animationDuration = Number(Math.max(...style.animationDuration.replace(/[^0-9.,]/g, "").split(","))),
+            animationDelay = Number(Math.max(style.animationDelay.replace(/[^0-9.]/g, "").split(",")));
+        await sleep((animationDuration + animationDelay) * 1000)
+        fly.remove();
     }
 }
 
 class Subcount {
-    constructor() {
+    /**
+     * @param {TimerApp} parent parent timer ref
+     */
+    constructor(parent) {
+        this.parent = parent;
         this.startedAt = Number(localStorage.subsStartedAt) || 0;
         this.maxCount = Number(localStorage.subsMaxCount) || -1;
     }
@@ -100,7 +126,7 @@ class Subcount {
      * updates each change in subcount
      * @param {Number} newCount 
      */
-    update(newCount) {
+    async update(newCount) {
         //initial values
         if (this.maxCount == -1) {
             this.startedAt = newCount;
@@ -121,7 +147,11 @@ class Subcount {
         if (newAddedDuration == olderAddedDuration)
             return;
 
-        //TODO: call GUI update of added values
+        //show added time
+        this.parent.VisualAddTime(newAddedDuration - olderAddedDuration)
+        await sleep(500);
+        //force update timer (if needed before the 1 sec updates)
+        this.parent.updateTimer();
     }
 
     /**
@@ -129,6 +159,8 @@ class Subcount {
      * @returns {Number}
     */
     get addedDuration() {
+        if (this.maxCount == -1)
+            return 0;
         return Math.floor((this.maxCount - this.startedAt) / userSettings.subUpdate.subsThreshold) * userSettings.subUpdate.durationPerUpdate * 60
     }
 }
