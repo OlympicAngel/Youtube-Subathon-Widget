@@ -27,6 +27,7 @@ class TimerApp {
         parent.appendChild(this.#TimerContainer)
 
         this.subcount = new Subcount(this);
+        this.donations = new Donations(this);
         //load time from memory or set it if none
         if (localStorage.startTime) {
             this.startTime = new Date(localStorage.startTime);
@@ -43,7 +44,8 @@ class TimerApp {
 
     get duration() {
         const totalDuration = userSettings.baseDuration * 60 + //base duration
-            this.subcount.addedDuration; //time from new subs
+            this.subcount.addedDuration + //time from new subs
+            this.donations.addedDuration;
 
         return (this.startTime - Date.now()) / 1000 + totalDuration
     }
@@ -63,7 +65,7 @@ class TimerApp {
         const timeRemain = this.duration;
         //check if times up
         if (timeRemain < 0)
-            clearInterval(this.updateInterval)
+            this.onEnd();
 
         const timeStr = format(timeRemain) //convert to string view
         const elements = [];
@@ -110,14 +112,21 @@ class TimerApp {
         await sleep((animationDuration + animationDelay) * 1000)
         fly.remove();
     }
+
+    onEnd() {
+        clearInterval(this.updateInterval); //stop timer loop;
+        localStorage.clear() //clear stored data so next refresh will get new timer
+
+    }
 }
 
 class Subcount {
+    #parent;
     /**
      * @param {TimerApp} parent parent timer ref
      */
     constructor(parent) {
-        this.parent = parent;
+        this.#parent = parent;
         this.startedAt = Number(localStorage.subsStartedAt) || 0;
         this.maxCount = Number(localStorage.subsMaxCount) || -1;
     }
@@ -148,10 +157,10 @@ class Subcount {
             return;
 
         //show added time
-        this.parent.VisualAddTime(newAddedDuration - olderAddedDuration)
+        this.#parent.VisualAddTime(newAddedDuration - olderAddedDuration)
         await sleep(500);
         //force update timer (if needed before the 1 sec updates)
-        this.parent.updateTimer();
+        this.#parent.updateTimer();
     }
 
     /**
@@ -162,6 +171,40 @@ class Subcount {
         if (this.maxCount == -1)
             return 0;
         return Math.floor((this.maxCount - this.startedAt) / userSettings.subUpdate.subsThreshold) * userSettings.subUpdate.durationPerUpdate * 60
+    }
+}
+
+class Donations {
+    #parent
+    /**
+     * @param {TimerApp} parent 
+     */
+    constructor(parent) {
+        this.#parent = parent;
+        this.donationSum = Number(localStorage.donationSum) || 0;
+    }
+
+    /**
+     * gets called for each new donation - adding donation & visual update
+     * @param {Number} donationAmount 
+     */
+    async addDonation(donationAmount) {
+        //if donation should not add time - exit
+        if (userSettings.durationPerDollar == 0)
+            return;
+
+        const oldAddedDuration = this.addedDuration;
+        this.donationSum += donationAmount;
+        localStorage.donationSum = this.donationSum;
+        this.#parent.VisualAddTime(this.addedDuration - oldAddedDuration)
+        await sleep(500);
+        //force update timer (if needed before the 1 sec updates)
+        this.#parent.updateTimer();
+    }
+
+    /** @param {Number} */
+    get addedDuration() {
+        return this.donationSum * userSettings.durationPerDollar;
     }
 }
 
