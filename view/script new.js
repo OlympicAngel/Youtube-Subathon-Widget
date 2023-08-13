@@ -12,6 +12,8 @@ class TimerApp {
     #TimerContainer;
     /** @type {Element} */
     #AnimationContainer;
+    /** @type {Number} */
+    #updateInterval
 
     /**
      * Creates new timer
@@ -35,14 +37,14 @@ class TimerApp {
             this.startTime = new Date();
             localStorage.startTime = this.startTime
         }
-        this.ini()
+        this.#ini()
     }
 
-    set html(html) {
+    set #html(html) {
         this.#TimerContainer.innerHTML = html;
     }
 
-    get duration() {
+    get #duration() {
         const totalDuration = userSettings.baseDuration * 60 + //base duration
             this.subcount.addedDuration + //time from new subs
             this.donations.addedDuration;
@@ -53,19 +55,19 @@ class TimerApp {
     /**
      * Start load of the timer & ws connections
      */
-    async ini() {
-        this.html = "מתחיל טיימר";
+    async #ini() {
+        this.#html = "מתחיל טיימר";
         await sleep(250);
-        this.updateTimer();
-        this.updateInterval = setInterval(this.updateTimer.bind(this), 1000);
+        this.#updateTimer();
+        this.#updateInterval = setInterval(this.#updateTimer.bind(this), 1000);
     }
 
     /** each sec update timer & if needed stop the timer loop */
-    updateTimer() {
-        const timeRemain = this.duration;
+    #updateTimer() {
+        const timeRemain = this.#duration;
         //check if times up
         if (timeRemain < 0)
-            this.onEnd();
+            this.#onEnd();
 
         const timeStr = format(timeRemain) //convert to string view
         const elements = [];
@@ -109,46 +111,64 @@ class TimerApp {
         const style = getComputedStyle(fly)
         const animationDuration = Number(Math.max(...style.animationDuration.replace(/[^0-9.,]/g, "").split(","))),
             animationDelay = Number(Math.max(style.animationDelay.replace(/[^0-9.]/g, "").split(",")));
+
+        (async () => {
+            //wait when popup animation is half way - then visually update timer
+            await sleep(animationDuration / 2);
+            this.#updateTimer();
+        }
+        )()
+
         await sleep((animationDuration + animationDelay) * 1000)
         fly.remove();
     }
 
-    onEnd() {
-        clearInterval(this.updateInterval); //stop timer loop;
+    #onEnd() {
+        clearInterval(this.#updateInterval); //stop timer loop;
         localStorage.clear() //clear stored data so next refresh will get new timer
 
+
+        //console.log(timer.subcount.addedDuration, timer.subcount.gainedSubs)
     }
 }
 
 class Subcount {
     #parent;
+    #startedAt;
+    #maxCount;
+    #currentCount;
     /**
      * @param {TimerApp} parent parent timer ref
      */
     constructor(parent) {
         this.#parent = parent;
-        this.startedAt = Number(localStorage.subsStartedAt) || 0;
-        this.maxCount = Number(localStorage.subsMaxCount) || -1;
+        this.#startedAt = Number(localStorage.subsStartedAt) || 0;
+        this.#currentCount = Number(localStorage.subsCurrent) || 0;
+        this.#maxCount = Number(localStorage.subsMaxCount) || -1;
     }
 
     /**
      * updates each change in subcount
      * @param {Number} newCount 
      */
-    async update(newCount) {
+    update(newCount) {
+        //save current for stats only
+        this.#currentCount = newCount;
+        localStorage.subsCurrent = newCount
+
         //initial values
-        if (this.maxCount == -1) {
-            this.startedAt = newCount;
+        if (this.#maxCount == -1) {
+            this.#startedAt = newCount;
             localStorage.subsStartedAt = newCount;
-            this.maxCount = newCount;
+            this.#maxCount = newCount;
             return;
         }
         //if new is less the max - exit as there is no update needed.
-        if (newCount <= this.maxCount)
+        if (newCount <= this.#maxCount)
             return;
 
         const olderAddedDuration = this.addedDuration;
-        this.maxCount = newCount; //updates subcount 
+        this.#maxCount = newCount; //updates subcount 
         localStorage.subsMaxCount = newCount;
         const newAddedDuration = this.addedDuration //will now calc with the added subs
 
@@ -158,9 +178,6 @@ class Subcount {
 
         //show added time
         this.#parent.VisualAddTime(newAddedDuration - olderAddedDuration)
-        await sleep(500);
-        //force update timer (if needed before the 1 sec updates)
-        this.#parent.updateTimer();
     }
 
     /**
@@ -168,9 +185,13 @@ class Subcount {
      * @returns {Number}
     */
     get addedDuration() {
-        if (this.maxCount == -1)
+        if (this.#maxCount == -1)
             return 0;
-        return Math.floor((this.maxCount - this.startedAt) / userSettings.subUpdate.subsThreshold) * userSettings.subUpdate.durationPerUpdate * 60
+        return Math.floor((this.#maxCount - this.#startedAt) / userSettings.subUpdate.subsThreshold) * userSettings.subUpdate.durationPerUpdate * 60
+    }
+
+    get gainedSubs() {
+        return this.#currentCount - this.#startedAt;
     }
 }
 
@@ -188,7 +209,7 @@ class Donations {
      * gets called for each new donation - adding donation & visual update
      * @param {Number} donationAmount 
      */
-    async addDonation(donationAmount) {
+    addDonation(donationAmount) {
         //if donation should not add time - exit
         if (userSettings.durationPerDollar == 0)
             return;
@@ -197,14 +218,11 @@ class Donations {
         this.donationSum += donationAmount;
         localStorage.donationSum = this.donationSum;
         this.#parent.VisualAddTime(this.addedDuration - oldAddedDuration)
-        await sleep(500);
-        //force update timer (if needed before the 1 sec updates)
-        this.#parent.updateTimer();
     }
 
     /** @param {Number} */
     get addedDuration() {
-        return this.donationSum * userSettings.durationPerDollar;
+        return this.donationSum * userSettings.durationPerDollar * 60;
     }
 }
 
