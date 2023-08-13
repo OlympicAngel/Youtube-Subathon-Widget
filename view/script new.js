@@ -4,7 +4,13 @@ var userSettings = {
         subsThreshold: 1, //updateTimer each new {subsThreshold} subs,
         durationPerUpdate: 0.5 //the duration added for each sub update
     },
-    durationPerDollar: 3 //the duration added for each dollar donated
+    durationPerDollar: 3, //the duration added for each dollar donated
+    endStats: {
+        subs: true,
+        donation: true,
+        duration: true,
+        members: true
+    }
 }
 
 class TimerApp {
@@ -125,7 +131,40 @@ class TimerApp {
 
     #onEnd() {
         clearInterval(this.#updateInterval); //stop timer loop;
-        localStorage.clear() //clear stored data so next refresh will get new timer
+        // localStorage.clear() //clear stored data so next refresh will get new timer
+
+        const statBools = userSettings.endStats;
+        const statsHtml = []
+
+        if (statBools.subs && this.subcount.gainedSubs)
+            statsHtml.push(`<div>
+                <span>רשומים חדשים:</span>
+                <h1>${this.subcount.gainedSubs}</h1>
+            </div>`);
+
+        if (statBools.duration)
+            statsHtml.push(`<div>
+                <span>אורך הלייב:</span>
+                <h1>${format((Date.now() - this.startTime) / 1000)}</h1>
+            </div>`);
+
+        if (statBools.donation && this.donations.donationSum)
+            statsHtml.push(`<div>
+                <span>תרומות בלייב:</span>
+                <h1>${this.donations.donationSum}$</h1>
+            </div>`);
+
+        //TODO: add & handle members to timer
+        if (statBools.members)
+            statsHtml.push(`<div>
+                <span>חברי מועדון</span>
+                <h1>${0}</h1>
+            </div>`);
+
+        const statsDiv = document.createElement("div");
+        statsDiv.className = "stats";
+        statsDiv.innerHTML = statsHtml.join("")
+        this.#TimerContainer.parentElement.appendChild(statsDiv);
 
 
         //console.log(timer.subcount.addedDuration, timer.subcount.gainedSubs)
