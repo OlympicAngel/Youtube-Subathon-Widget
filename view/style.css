@@ -99,6 +99,26 @@ body {
     animation-name: animationGlitch;
 }
 
+.timer[animation="blur"] .number {
+    animation-name: animationBlur;
+}
+
+@keyframes animationBlur {
+
+    20%,
+    80% {
+        filter: blur(0);
+    }
+
+    0% {
+        filter: blur(calc(0.04em * var(--last)));
+    }
+
+    100% {
+        filter: blur(0.04em);
+    }
+}
+
 @keyframes animationGlitch {
 
     10%,
@@ -325,4 +345,14 @@ button {
     &:active {
         transform: scale(0.98);
     }
+}
+
+button:disabled {
+    filter: saturate(0) brightness(0.8);
+
+    &:hover {
+        background-color: inherit;
+        transform: inherit;
+    }
+
 }

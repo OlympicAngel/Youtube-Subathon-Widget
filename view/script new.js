@@ -40,20 +40,19 @@ class GUI {
         localStorage.clear()
         window.location.reload();
     }
-
     static addTime() {
         const userData = prompt("כמה זמן להוסיף בדקות?", 0);
         if (isNaN(userData))
             return;
 
         const minutes = Number(userData)
-        if (minutes <= 0)
+        if (minutes == 0)
             return;
 
         timer.pauseTime = timer.pauseTime + minutes * 60;
-        timer.VisualAddTime(minutes * 60)
+        if (minutes > 0)
+            timer.VisualAddTime(minutes * 60)
     }
-
     static addDonation() {
         const userData = prompt("מה הסכום תרומה בדולרים?", 0);
         if (isNaN(userData))
@@ -313,6 +312,8 @@ class Donations {
     constructor(parent) {
         this.#parent = parent;
         this.donationSum = Number(localStorage.donationSum) || 0;
+
+
     }
 
     /**

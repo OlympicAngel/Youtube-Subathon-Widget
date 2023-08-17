@@ -17,7 +17,7 @@
     <div>
     </div>
     <div>
-      <button class="green" onclick="GUI.addDonation()">הוספת/הסרת תרומה</button>
+      <button class="green" disabled onclick="GUI.addDonation()">הוספת/הסרת תרומה</button>
       <button class="green" onclick="GUI.addTime()">הוספת/הסרת זמן</button>
     </div>
   </div>
@@ -30,7 +30,7 @@
   <script>
     const modifiedSettings = {
       sockets: { sl: "" },
-      animation: "glitch",
+      animation: "blur",
       baseDuration: 60, //base timer duration
       subUpdate: { //timer updates for new subs
         subsThreshold: 1, //updateTimer each new {subsThreshold} subs,
