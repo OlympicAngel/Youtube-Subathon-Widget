@@ -4,6 +4,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
   <link rel="stylesheet" href="./style.css">
 
+  <title>סאבאטון ע"י אולימפיק אנג'ל</title>
 
 </head>
 
@@ -32,20 +33,26 @@
 
   <script src="./script new.js"></script>
   <script>
+    /**
+     * http://127.0.0.1:5500/view/?slApi=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbiI6IjVBNTg4ODc3NzdGNzlGQzBCMDA2IiwicmVhZF9vbmx5Ijp0cnVlLCJwcmV2ZW50X21hc3RlciI6dHJ1ZSwieW91dHViZV9pZCI6IlVDTmlzRjRWa2ZCYTBVYlFYUVFKY0x2ZyJ9.yaoR9s_8BwH1L9skBIwfKd9h2GCy3fHs7RcIA8Ci0w4
+     *      &eS=1&eDo=1&eDu=1&timePerDollar=3&timePerXSubs=0.5&XSubs=1&duration=60&animate=glitch
+     */
+    const url = new URL(window.location.href);
+    const userArgs = url.searchParams;
     const modifiedSettings = {
-      sockets: { sl: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbiI6IjVBNTg4ODc3NzdGNzlGQzBCMDA2IiwicmVhZF9vbmx5Ijp0cnVlLCJwcmV2ZW50X21hc3RlciI6dHJ1ZSwieW91dHViZV9pZCI6IlVDTmlzRjRWa2ZCYTBVYlFYUVFKY0x2ZyJ9.yaoR9s_8BwH1L9skBIwfKd9h2GCy3fHs7RcIA8Ci0w4" },
-      animation: "blur",
-      baseDuration: 60, //base timer duration
+      sockets: { sl: userArgs.get("slApi") || "" },
+      animation: userArgs.get("animate") || "none",
+      baseDuration: Number(userArgs.get("duration")) || 60, //base timer duration
       subUpdate: { //timer updates for new subs
-        subsThreshold: 1, //updateTimer each new {subsThreshold} subs,
-        durationPerUpdate: 0.5 //the duration added for each sub update
+        subsThreshold: Number(userArgs.get("XSubs")) || 1, //updateTimer each new {subsThreshold} subs,
+        durationPerUpdate: Number(userArgs.get("timePerXSubs")) || 0.5//the duration added for each sub update
       },
-      durationPerDollar: 3, //the duration added for each dollar donated
+      durationPerDollar: Number(userArgs.get("timePerDollar")) || 0, //the duration added for each dollar donated
       endStats: {
-        subs: true,
-        donation: true,
-        duration: true,
-        members: true
+        subs: userArgs.get("eS") == 1 || false,
+        donation: userArgs.get("eDo") == 1 || false,
+        duration: userArgs.get("eDu") == 1 || false,
+        members: false
       }
     };
 

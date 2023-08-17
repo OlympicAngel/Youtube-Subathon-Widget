@@ -404,6 +404,7 @@ streamerPlus_WS();
 function loginStreamlabs() {
     const streamlabs = io(`https://sockets.streamlabs.com?token=${userSettings.sockets.sl}`, { transports: ['websocket'] });
     async function onStreamLabs_ws_state() {
+        streamlabs.disconnected = userSettings.sockets.sl == ""
         const view = [{ html: "חיבור מוצלח ל StreamLabs - מאזין לתרומות.", color: "lime" }, { html: "אין חיבור לStramlabs - אין עדכון על תרומות.<br>קוד ws שגוי?", color: "red" }]
         document.getElementById("sl").innerHTML = view[~~streamlabs.disconnected].html
         document.getElementById("sl").style.color = view[~~streamlabs.disconnected].color;
