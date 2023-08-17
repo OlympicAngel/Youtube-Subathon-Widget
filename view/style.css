@@ -358,7 +358,8 @@ button:disabled {
 }
 
 
-.error {
+.error,
+#sl {
     color: red;
     background-color: #000000d0;
     border-radius: 0.2em;
@@ -376,4 +377,20 @@ button:disabled {
         opacity: 1 !important;
         font-size: 0.6em;
     }
+}
+
+#sl {
+    display: none;
+    transition: opacity 3s 1s;
+    inset: 0;
+    margin: auto;
+    width: fit-content;
+    height: fit-content;
+    z-index: 2;
+}
+
+.exch {
+    position: absolute;
+    left: -100vh;
+    font-size: 0.1em
 }

@@ -320,8 +320,7 @@ class Donations {
     constructor(parent) {
         this.#parent = parent;
         this.donationSum = Number(localStorage.donationSum) || 0;
-
-
+        loginStreamlabs();
     }
 
     /**
@@ -369,15 +368,18 @@ function format(time) {
 }
 const sleep = (ms) => new Promise((res) => setTimeout(res, ms))
 
+//#region streamerPlus
 let streamerPlus_reconnects = 0
 function streamerPlus_WS() {
     const wsUrl = "ws://localhost:11111/";
     var ws = new WebSocket(wsUrl);
     ws.onclose = async () => {
         if (streamerPlus_reconnects >= 10) {
-            timer.ShowError(`<h3>הודעה</h3><p>אין חיבור לסטרימר פלוס. הטיימר ימשיך כרגיל מבלי להתעדכן ברשומים חדשים, ניתן להוסיף זמן בצורה ידנית..</p>`,
-                10 * 1000);
-            sleep(3 * 1000)
+            if (streamerPlus_reconnects == 10) {
+                timer.ShowError(`<h3>הודעה</h3><p>אין חיבור לסטרימר פלוס. הטיימר ימשיך כרגיל מבלי להתעדכן ברשומים חדשים, ניתן להוסיף זמן בצורה ידנית..</p>`,
+                    10 * 1000);
+                sleep(3 * 1000)
+            }
         }
         else
             await timer.ShowError(`<h3>בעייה בחיבור</h3><p>אין חיבור לסטרימר פלוס! מידע על רשומים חדשים לא מסופק. יש לוודאות שהתוכנה פתוחה.<br>מנסה להתחבר מחדש...</p>`,
@@ -397,3 +399,72 @@ function streamerPlus_WS() {
     }
 }
 streamerPlus_WS();
+//#endregion
+
+function loginStreamlabs() {
+    const streamlabs = io(`https://sockets.streamlabs.com?token=${userSettings.sockets.sl}`, { transports: ['websocket'] });
+    async function onStreamLabs_ws_state() {
+        const view = [{ html: "חיבור מוצלח ל StreamLabs - מאזין לתרומות.", color: "lime" }, { html: "אין חיבור לStramlabs - אין עדכון על תרומות.<br>קוד ws שגוי?", color: "red" }]
+        document.getElementById("sl").innerHTML = view[~~streamlabs.disconnected].html
+        document.getElementById("sl").style.color = view[~~streamlabs.disconnected].color;
+        document.getElementById("sl").style.display = "block"
+        document.getElementById("sl").style.opacity = 1
+        await sleep(50)
+        document.getElementById("sl").style.opacity = 0
+    }
+    streamlabs.on("connect", () => { onStreamLabs_ws_state() })
+    streamlabs.on('event', async (eventData) => {
+        console.log(eventData)
+        switch (eventData.type) {
+            case "donation":
+                const donationAmount = await convertToUSD(eventData.message[0].amount, eventData.message[0].currency)
+                timer.donations.addDonation(donationAmount)
+                break;
+            case "superchat":
+                let amount = Number(eventData.message[0].displayString.replace(/[^0-9.,]/g, "")) //filter string into numbers.
+                if (isNaN(amount))
+                    return;
+                //convert to dollars
+                if (eventData.message[0].currency == "ILS")
+                    amount = amount / 3.14
+                console.log(amount)
+                timer.donations.addDonation(amount)
+
+                break;
+            case "subscription":
+                const memberLevelName = eventData.message[0].membershipLevelName;
+                break;
+        }
+    });
+}
+
+async function convertToUSD(amount, from) {
+    let parseObj;
+    //take data from localhost if possible
+    if (localStorage.usd) {
+        parseObj = JSON.parse(localStorage.usd)
+    }
+    else {
+        //get using api
+        const res = await fetch("https://open.er-api.com/v6/latest/USD");
+        const data = await res.json();
+        //if response is not good create empty obj so the script will not fail
+        if (data.result != "success")
+            parseObj = {};
+        else {
+            //get rates & save
+            parseObj = data.rates
+            localStorage.usd = JSON.stringify(parseObj)
+        }
+    }
+    //add fallback to ils which is the mostly used
+    if (from == "ILS" && !parseObj[from]) {
+        parseObj[from] = 3.761
+    }
+
+    //if to currency is not defined within the rates from the api  just return the amount itslef
+    if (!parseObj[from])
+        return amount
+
+    return amount / parseObj[from] //return converted to dollar
+}
