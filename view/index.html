@@ -71,6 +71,12 @@
     //copy any key to user settings
     Object.assign(userSettings, modifiedSettings)
 
+    if (userArgs.get("preview")) {
+      const style = document.createElement("style")
+      style.innerHTML = ".error, #sl{display:none !important}"
+      document.body.appendChild(style)
+    }
+
   </script>
   <script>var timer = new TimerApp("#counter");</script>
 </body>

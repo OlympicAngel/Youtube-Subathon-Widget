@@ -1,0 +1,231 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <link rel="stylesheet" href="./style.css">
+    <link rel="stylesheet" href="https://www.olympicangelabz.com/master/style/reset.css">
+    <link rel="stylesheet" href="https://www.olympicangelabz.com/master/style/fontawsome.css">
+    <link rel="stylesheet" href="https://www.olympicangelabz.com/master/style/animate.css">
+    <link rel="stylesheet" href="https://www.olympicangelabz.com/master/style/main.css">
+
+
+</head>
+
+<body>
+    <main>
+        <article class="view" box id="app" spliter style="padding:1em; box-sizing: border-box;">
+            <h1>סאבטון ליוטיוב</h1>
+            <hr>
+            <div split="0.5" box>
+
+                <div spliter class="opts">
+                    <h2>הגדרות סאבטון:</h2>
+                    <div split="0.5">
+                        <label>זמן התחלתי: (בדקות)</label>
+                        <input type="number" id="minLength" min="10" value="60" step="1" onchange="GenLink()">
+                        <sub>*הזמן המינימאלי של הטיימר.</sub>
+                    </div>
+                    <div split="0.5">
+                        <label>אנימצייה:</label>
+                        <select id="animationSelect" onchange="GenLink()" split="0.9"
+                            style="display: block; margin: auto;">
+                            <option value="blur">טשטוש</option>
+                            <option value="glitch">גליץ'</option>
+                            <option value="skew">נטייה</option>
+                            <option value="zoom">זום אין / אוט</option>
+                            <option value="color">חילוף צבע</option>
+                            <option value="spin">סיבוב</option>
+                            <option value="none">ללא</option>
+                        </select>
+                        <sub>*אנימציית המעבר בכל פעם שמספר מתחלף.</sub>
+                    </div>
+                    <br>
+
+                    <div split="0.5">
+                        <label>זמן עבור X סאבים:</label><input type="number" onchange="GenLink()" id="perSub" min="0"
+                            value="0.5" step="0.5">
+                        <sub>*הזמן שיש להוסיף לטיימר בדקות בכל פעם שיש עוד X סאבים חדשים.</sub>
+                    </div>
+                    <div split="0.5">
+                        <label>עדכון כל X סאבים:</label><input type="number" min="1" onchange="GenLink()" id="xSub"
+                            value="1" step="1">
+                        <sub>*קביעה של ה X, כמה סאבים חדשים צריך כדי להוסיף זמן..</sub>
+                    </div>
+                    <br>
+                    <br>
+                </div>
+                <hr>
+                <div spliter class="opts">
+                    <h2>הגדרות תרומות:</h2>
+                    <div split="0.5" box>
+                        <br>
+                        <label>מזהה SocketAPI של StreamLabs:</label><input type="password" onchange="GenLink()"
+                            id="wsApi">
+                        <sub>*בשביל לזהות תרומות יש צורך בקוד מחשבון הסטריםלאבס שלכם שמאפשר זיהוי בזמן אמת של
+                            תרומות. <strong>אני מדגיש</strong> אין שום סכנה או חשש שיקרה משהו לחשבון שלכם, גם אם בטעות
+                            מישהו מוצא את המזהה הזה! <br>
+                            כל מה שהמזהה הזה מאפשר לעשות זה פשוט <strong>לקבל</strong> מידע בזמן אמת. אין גישה למידע
+                            שכבר קיים, אין גישה לפרטים אישיים, אין שום מידע מלבד למידע על תרומות / רשומים שמתקבל בזמן
+                            אמת.</sub>
+                        <br>
+                        <p style="font-size: 0.7em; margin:0">לא חייב, אבל בלי זה לא יהיה מעקב על תרומות!</p>
+                        <br>
+                    </div>
+                    <div split="0.5" class="guide view">
+                        <strong>למציאת המזהה:</strong>
+                        <p style="padding: 0.5em; font-size: 0.8em;" class="scroll">
+                            1. כנסו לקישור <a href="https://streamlabs.com/dashboard#/settings/api-settings"
+                                target="_blank">הזה</a> שיפתח
+                            את דף ההגדרות (במידת הצורך התחברו לחשבון שלכם).
+                            <br><br>
+                            2. בתת-התפריט לחצו על "API Tokens":
+                            <a href="https://www.olympicangelabz.com/subaton/apisettings.png" target="_blank">
+                                <img src="https://www.olympicangelabz.com/subaton/apisettings.png" width="100%">
+                            </a>
+                            <br><br>
+                            3. וכעט רק ללחוץ על כפתור העתקה בתיבת הטקסט של "Your Socket API Token":
+                            <a href="https://www.olympicangelabz.com/subaton/socketsettings.png" target="_blank">
+                                <img src="https://www.olympicangelabz.com/subaton/socketsettings.png" width="100%">
+                            </a>
+                        </p>
+                    </div>
+                    <br>
+                    <div split="0.9">
+                        <label>זמן להוסיף לטיימר עבור כל דולר לתרומה:</label>
+                        <input split="0.9" type="number" min="0" value="1" step="0.5" onchange="GenLink()"
+                            id="perDollar">
+                        <sub>*הזמן שיש להוסיף לטיימר עבור כל דולר שייתרם דרך סטרים לאבס או דרך סופרצאט.<br>
+                            לדוגמא: אם הערך
+                            הוא 2 אז עבור תרומה של 3 דולר הטיימר יגדל ב 6 דקות<br>
+                            <strong>ערך של 0 יבטל הוספת זמן מתרומות.</strong></sub>
+                        <br>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="preview" split="0.5">
+                <iframe src="./view/index.html" id="preview" style="width:100%; height:100%; border:none;"></iframe>
+                <strong>*תצוגה מקדימה - עברו עם העכבר על הטיימר לאיפוס / סיום.</strong>
+                <br>
+                <h2>טיפ:</h2>
+                <p style="font-size: 0.7em;">הכפתורים שפה מופיעים וניתנים ללחיצה גם ב OBS, יש ללחוץ מקש ימני על האובייקט
+                    דפדפן של הסאבקאונט
+                    ואז Interact. ויפתח חלונית שתאפשר לכם ללחוץ על הכפתורים האלו בזמן לייב.</p>
+            </div>
+            <div class="view" box>
+                <h2>הוספה ללייב:</h2>
+                <input type="text" id="genLink" readonly style="font-size: 1em; padding: 0.4em; --high2: lime;">
+                <p>פשוט העתיקו את הכתובת שפה מעל, צרו אובייקט דפדפן חדש ב OBS והדביקו את הכתובת שם. זהו!</p>
+                <br>
+            </div>
+        </article>
+
+        <br>
+        <article class="view" box>
+            <h1>מה בכלי?</h1>
+            <br>
+
+            <div spliter>
+                <div split="0.3" box>
+                    <h2>מה זה?</h2>
+                    <p>
+                        בהכי פשוט מה שיש לכם פה זה פשוט טיימר שסופר לאחור, שמייצג את הזמן שנשאר לכם בלייב.<br>
+                        פשוט מאוד, נגמר הטיימר - נגמר הלייב.. קונספט מאוד מגניב שנותן לגורם חיצוני להחליט מתי יגמר
+                        הלייב, בין אם אתה רוצה להמשיך או לא,
+                        זה היופי בלייבים כאלה, זה מושך צופים שירצו לעזור לך וכאלה... שלא.
+                    </p>
+                </div>
+
+                <div split="0.3" box>
+                    <h2>סאבטון..?</h2>
+                    <p>
+                        פה מגיע החלק המגניב! <br>
+                        העיקרון של סאבטון זה שבכל פעם שצופה חדש נרשם אל הערוץ בזמן לייב - מתווסף לטיימר עוד זמן לפי
+                        בחירתכם!<br>
+                        אפשר גם לבחור שכל X רשומים חדשים יתווסף הזמן הזה. ככה שנוצר מצב בו הטיימר מתארך ככל שיותר אנשים
+                        נרשמים לערוץ!
+                    </p>
+                </div>
+
+                <div split="0.3" box>
+                    <h2>תרומות!</h2>
+                    <p>
+                        בשביל יותר אטרקטיביות! אפשר לבחור שעבור כל תרומה דרך סטרים לאבס ויוטיוב יתווסף בנוסף עוד זמן
+                        ללייב לפי הכמות שתרמו.<br>
+                        ככה שיש תגמול לצופים התורמים שלך, ומן הסתם גם לך בתור יוצר תוכן.
+                    </p>
+                </div>
+            </div>
+            <br>
+        </article>
+
+        <script>
+            GenLink();
+            function GenLink() {
+                const link = new URL("http://127.0.0.1:5500/view/index.html")
+                //const link = new URL("https://www.olympicangelabz.com/subaton/view?")
+
+                link.searchParams.set("slApi", wsApi.value)
+                link.searchParams.set("eS", 1)
+                link.searchParams.set("eDo", 1)
+                link.searchParams.set("eDu", 1)
+                link.searchParams.set("timePerDollar", perDollar.value)
+                link.searchParams.set("timePerXSubs", perSub.value)
+                link.searchParams.set("XSubs", xSub.value)
+                link.searchParams.set("duration", minLength.value)
+                link.searchParams.set("animate", animationSelect.value)
+
+                genLink.value = link.href
+
+                link.searchParams.set("preview", true)
+
+                preview.src = link.href
+            }
+        </script>
+
+        <style>
+            .scroll {
+                overflow: auto;
+                height: -webkit-fill-available;
+                max-height: 14em;
+            }
+
+            main {
+                font-size: max(14px, 2vmin);
+            }
+
+            main sub {
+                margin-top: 0.5em;
+                line-height: 1.2em;
+                font-size: 0.5em;
+                display: block;
+                opacity: 0.9;
+                letter-spacing: 0.05em;
+            }
+
+            input+sub {
+                margin-top: 0em;
+            }
+
+            .opts>div {
+                margin-top: 1em;
+            }
+
+            .preview {
+                background-image: url("https://www.olympicangelabz.com/pages/stream-settings/games/minecraft.jpg");
+                background-size: 100%;
+                background-repeat: no-repeat;
+                aspect-ratio: calc(16/9);
+                border: solid var(--high2) 0.3em;
+                border-radius: 0.5em;
+            }
+        </style>
+    </main>
+</body>
+
+</html>
