@@ -1,4 +1,8 @@
+/** @type {TimerApp} */
+var timer;
 var userSettings = {
+    sockets: { sl: "" },
+    animation: "zoom",
     baseDuration: 60, //base timer duration
     subUpdate: { //timer updates for new subs
         subsThreshold: 1, //updateTimer each new {subsThreshold} subs,
@@ -13,6 +17,55 @@ var userSettings = {
     }
 }
 
+class GUI {
+    static pauseInterval;
+    static pauseTimer(pointer) {
+        document.body.classList.toggle("pause")
+        if (this.pauseInterval) {
+            pointer.innerText = "השהיית טיימר"
+
+            clearInterval(this.pauseInterval)
+            this.pauseInterval = false;
+            return;
+        }
+        pointer.innerText = "המשכת טיימר"
+
+        const updateEach = 200;
+        this.pauseInterval = setInterval(() => { timer.pauseTime += updateEach / 1000 }, updateEach)
+    }
+    static endTimer() {
+        timer.manualEnd = true;
+    }
+    static reset() {
+        localStorage.clear()
+        window.location.reload();
+    }
+
+    static addTime() {
+        const userData = prompt("כמה זמן להוסיף בדקות?", 0);
+        if (isNaN(userData))
+            return;
+
+        const minutes = Number(userData)
+        if (minutes <= 0)
+            return;
+
+        timer.pauseTime = timer.pauseTime + minutes * 60;
+        timer.VisualAddTime(minutes * 60)
+    }
+
+    static addDonation() {
+        const userData = prompt("מה הסכום תרומה בדולרים?", 0);
+        if (isNaN(userData))
+            return;
+
+        const amount = Number(userData)
+        if (amount <= 0)
+            return;
+        timer.donations.addDonation(amount)
+    }
+}
+
 class TimerApp {
     /** @type {Element} */
     #TimerContainer;
@@ -20,6 +73,8 @@ class TimerApp {
     #AnimationContainer;
     /** @type {Number} */
     #updateInterval
+    /** @type {Number} */
+    #pauseTime
 
     /**
      * Creates new timer
@@ -32,6 +87,8 @@ class TimerApp {
 
         this.#TimerContainer = document.createElement("div")
         this.#TimerContainer.className = "timer"
+        if (userSettings.animation)
+            this.#TimerContainer.setAttribute("animation", userSettings.animation)
         parent.appendChild(this.#TimerContainer)
 
         this.subcount = new Subcount(this);
@@ -43,7 +100,19 @@ class TimerApp {
             this.startTime = new Date();
             localStorage.startTime = this.startTime
         }
+        this.manualEnd = false;
+        this.#pauseTime = Number(localStorage.pauseTime) || 0;
+
         this.#ini()
+    }
+
+    get pauseTime() {
+        return this.#pauseTime;
+    }
+
+    set pauseTime(time) {
+        this.#pauseTime = time;
+        localStorage.pauseTime = this.#pauseTime
     }
 
     set #html(html) {
@@ -55,7 +124,7 @@ class TimerApp {
             this.subcount.addedDuration + //time from new subs
             this.donations.addedDuration;
 
-        return (this.startTime - Date.now()) / 1000 + totalDuration
+        return (this.startTime - Date.now()) / 1000 + totalDuration + 1 + this.pauseTime
     }
 
     /**
@@ -72,7 +141,7 @@ class TimerApp {
     #updateTimer() {
         const timeRemain = this.#duration;
         //check if times up
-        if (timeRemain < 0)
+        if (timeRemain < 0 || this.manualEnd)
             this.#onEnd();
 
         const timeStr = format(timeRemain) //convert to string view
@@ -99,6 +168,8 @@ class TimerApp {
             //if content is the same - keep;
             if (child.textContent == elements[index].innerHTML)
                 return;
+
+            console.log(child.textContent == elements[index].innerHTML, child.textContent, elements[index].innerHTML)
 
             child.replaceWith(elements[index])//if content miss-match replace with correct
         }))
@@ -131,12 +202,12 @@ class TimerApp {
 
     #onEnd() {
         clearInterval(this.#updateInterval); //stop timer loop;
-        // localStorage.clear() //clear stored data so next refresh will get new timer
+        localStorage.clear() //clear stored data so next refresh will get new timer
 
         const statBools = userSettings.endStats;
         const statsHtml = []
 
-        if (statBools.subs && this.subcount.gainedSubs)
+        if (statBools.subs && this.subcount.gainedSubs > 0)
             statsHtml.push(`<div>
                 <span>רשומים חדשים:</span>
                 <h1>${this.subcount.gainedSubs}</h1>
@@ -148,7 +219,7 @@ class TimerApp {
                 <h1>${format((Date.now() - this.startTime) / 1000)}</h1>
             </div>`);
 
-        if (statBools.donation && this.donations.donationSum)
+        if (statBools.donation && this.donations.donationSum > 0)
             statsHtml.push(`<div>
                 <span>תרומות בלייב:</span>
                 <h1>${this.donations.donationSum}$</h1>
@@ -266,9 +337,8 @@ class Donations {
 }
 
 /**
- * convert seconds into clock time string
- * @param {Number} time 
- * @returns {String}
+ * @param { Number } time
+ * @returns { String }
  */
 function format(time) {
     // Hours, minutes and seconds
@@ -289,4 +359,3 @@ function format(time) {
     return ret;
 }
 const sleep = (ms) => new Promise((res) => setTimeout(res, ms))
-var timer = new TimerApp("#counter");

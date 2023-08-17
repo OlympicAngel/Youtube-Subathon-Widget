@@ -8,6 +8,19 @@
 </head>
 
 <body>
+  <div class="gui">
+    <div>
+      <button onclick="GUI.pauseTimer(this)">השהיית טיימר</button>
+      <button onclick="GUI.endTimer()">סיום טיימר/לייב</button>
+      <button onclick="GUI.reset()">איפוס והפעלה מחדש</button>
+    </div>
+    <div>
+    </div>
+    <div>
+      <button class="green" onclick="GUI.addDonation()">הוספת/הסרת תרומה</button>
+      <button class="green" onclick="GUI.addTime()">הוספת/הסרת זמן</button>
+    </div>
+  </div>
   <div id="counter">
     בעייה בטעינה
   </div>
@@ -16,6 +29,8 @@
   <script src="./script new.js"></script>
   <script>
     const modifiedSettings = {
+      sockets: { sl: "" },
+      animation: "glitch",
       baseDuration: 60, //base timer duration
       subUpdate: { //timer updates for new subs
         subsThreshold: 1, //updateTimer each new {subsThreshold} subs,
@@ -30,6 +45,10 @@
       }
     };
 
+    //copy sockets obj and keep original values if not specified
+    Object.assign(userSettings.sockets, modifiedSettings.sockets);
+    delete modifiedSettings.sockets;
+
     //copy subUpdate obj and keep original values if not specified
     Object.assign(userSettings.subUpdate, modifiedSettings.subUpdate);
     delete modifiedSettings.subUpdate;
@@ -42,4 +61,5 @@
     Object.assign(userSettings, modifiedSettings)
 
   </script>
+  <script>var timer = new TimerApp("#counter");</script>
 </body>
