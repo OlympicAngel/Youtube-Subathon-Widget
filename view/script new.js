@@ -168,8 +168,6 @@ class TimerApp {
             if (child.textContent == elements[index].innerHTML)
                 return;
 
-            console.log(child.textContent == elements[index].innerHTML, child.textContent, elements[index].innerHTML)
-
             child.replaceWith(elements[index])//if content miss-match replace with correct
         }))
 
@@ -235,9 +233,19 @@ class TimerApp {
         statsDiv.className = "stats";
         statsDiv.innerHTML = statsHtml.join("")
         this.#TimerContainer.parentElement.appendChild(statsDiv);
+    }
 
+    async ShowError(err, timeout) {
+        const div = document.createElement("div")
+        div.className = "error";
+        div.innerHTML = err;
+        this.#TimerContainer.parentElement.prepend(div)
+        await sleep(timeout);
+        (async () => {
+            await sleep(1500)
+            div.remove();
+        })()
 
-        //console.log(timer.subcount.addedDuration, timer.subcount.gainedSubs)
     }
 }
 
@@ -360,3 +368,32 @@ function format(time) {
     return ret;
 }
 const sleep = (ms) => new Promise((res) => setTimeout(res, ms))
+
+let streamerPlus_reconnects = 0
+function streamerPlus_WS() {
+    const wsUrl = "ws://localhost:11111/";
+    var ws = new WebSocket(wsUrl);
+    ws.onclose = async () => {
+        if (streamerPlus_reconnects >= 10) {
+            timer.ShowError(`<h3>הודעה</h3><p>אין חיבור לסטרימר פלוס. הטיימר ימשיך כרגיל מבלי להתעדכן ברשומים חדשים, ניתן להוסיף זמן בצורה ידנית..</p>`,
+                10 * 1000);
+            sleep(3 * 1000)
+        }
+        else
+            await timer.ShowError(`<h3>בעייה בחיבור</h3><p>אין חיבור לסטרימר פלוס! מידע על רשומים חדשים לא מסופק. יש לוודאות שהתוכנה פתוחה.<br>מנסה להתחבר מחדש...</p>`,
+                3 * 1000)
+        streamerPlus_WS();
+        streamerPlus_reconnects++;
+    }
+
+    ws.onopen = () => { streamerPlus_reconnects = 0; }
+
+    ws.onmessage = function (e) {
+        const data = JSON.parse(e.data);
+        if (data.error)
+            return console.warn(data.error);
+        if (data.SubCount)
+            return timer.subcount.update(data.SubCount);
+    }
+}
+streamerPlus_WS();
