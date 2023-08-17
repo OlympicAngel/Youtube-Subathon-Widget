@@ -1,4 +1,5 @@
 body {
+    overflow: hidden;
     display: block;
     width: 100vw;
     height: 100vh;
@@ -9,10 +10,27 @@ body {
     text-align: center;
     font-family: "secular one", heebo;
     font-size: min(20vmin, calc(100vw / 10 * 2));
+
+    &.pause #counter {
+
+        animation: pulse 1.7s infinite ease-in-out alternate;
+
+        & span {
+            color: rgb(223, 36, 36) !important;
+        }
+
+        &::before {
+            content: "טיימר בהשהייה";
+            font-size: 0.4em;
+            text-shadow: inherit;
+            display: block;
+            line-height: 0.4em;
+        }
+    }
 }
 
 * {
-    box-sizing: content-box;
+    box-sizing: border-box;
 }
 
 #counter {
@@ -33,22 +51,144 @@ body {
     cursor: pointer;
     flex-wrap: wrap;
     justify-content: center;
-    font-size: min(20vmin, calc(100vw / 10 * 2));
 
     >span {
         line-height: 1em;
         display: block;
         height: 1em;
         text-align: center;
+        transition: color 0.2s;
+
+        &.number {
+            --last: 0;
+            aspect-ratio: 0.6;
+            animation: none 1s ease-in reverse;
+        }
+
+        &.number:first-of-type {
+            --last: 1;
+        }
+
+        &.dots {
+            animation: flash 4s infinite ease-in-out;
+            line-height: 80%;
+        }
+    }
+}
+
+
+
+.timer[animation="zoom"] .number {
+    animation-name: animationZoom;
+}
+
+.timer[animation="color"] .number {
+    animation-name: animationColor;
+}
+
+.timer[animation="skew"] .number {
+    animation-name: animationSkew;
+}
+
+.timer[animation="spin"] .number {
+    animation-name: animationSpin;
+    animation-timing-function: ease-in-out;
+}
+
+.timer[animation="glitch"] .number {
+    animation-name: animationGlitch;
+}
+
+@keyframes animationGlitch {
+
+    10%,
+    80% {
+        text-shadow: 0 1vmin #000, 0 0.5vmin 2vmin #000;
+        color: inherit
     }
 
-    >span.number {
-        aspect-ratio: 0.6;
+    0% {
+        text-shadow: 0 1vmin #000, 0 0.5vmin 2vmin #000, calc(var(--last) * 0.1em) 0 rgba(255, 0, 0, 0.7), calc(var(--last) * -0.1em) 0 rgba(0, 255, 255, 0.7);
     }
 
-    >span.dots {
-        animation: flash 4s infinite ease-in-out;
-        line-height: 80%;
+    90%,
+    92% {
+        text-shadow: 0 1vmin #000, 0 0.5vmin 2vmin #000, 0.1em 0.05em rgba(0, 255, 255, 0.7), -0.1em -0.05em rgba(255, 0, 0, 0.7);
+    }
+
+    93%,
+    95% {
+        text-shadow: 0 1vmin #000, 0 0.5vmin 2vmin #000, 0.1em -0.05em rgba(0, 255, 255, 0.7), 0.1em 0.05em rgba(255, 0, 0, 0.7);
+    }
+
+    100% {
+        text-shadow: 0 1vmin #ffffff, 0 0.5vmin 2vmin #000, 0.1em 0 rgba(255, 0, 0, 0.7), -0.1em 0 rgba(0, 255, 255, 0.7);
+    }
+}
+
+@keyframes animationSpin {
+
+    30%,
+    70% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+
+    0% {
+        transform: translateY(calc(-30% * var(--last))) rotate(calc(-10deg * var(--last)));
+        opacity: calc(1 - var(--last));
+    }
+
+    100% {
+        transform: translateY(30%) rotate(10deg);
+        opacity: 0;
+    }
+}
+
+@keyframes animationSkew {
+
+    10%,
+    60% {
+        transform: skew(0deg)
+    }
+
+    0% {
+        transform: skew(calc(var(--last) * -20deg));
+    }
+
+    85% {
+        transform: skew(-10deg)
+    }
+
+    100% {
+        transform: skew(15deg)
+    }
+}
+
+@keyframes animationColor {
+
+    65% {
+        color: inherit;
+    }
+
+    100% {
+        color: red;
+    }
+}
+
+@keyframes animationZoom {
+
+    5%,
+    70% {
+        transform: scale(1);
+    }
+
+    0% {
+        transform: scale(calc(1 - var(--last)));
+    }
+
+    100% {
+        transform: scale(0);
     }
 }
 
@@ -113,5 +253,76 @@ fly {
     &>div>h1 {
         margin: 0;
         font-size: 2em;
+    }
+}
+
+body:is(:hover, :active) .gui {
+    display: flex;
+}
+
+.gui {
+    display: none;
+    position: absolute;
+    z-index: 1;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    flex-direction: column;
+    font-size: 0.5em;
+
+    &>div:nth-child(even) {
+        flex: 1;
+    }
+
+    &>div:nth-child(odd) {
+        box-shadow: 0 0 0.3em;
+        background-color: gold;
+        box-shadow: inset 0 0.5em #ffffff42, inset 0 0.25em #ffffff51, inset 0 0.05em #fff, 0 0 0.3em -0.1em #000;
+        min-height: 1em;
+        display: flex;
+        gap: 1em;
+        justify-content: center;
+        align-items: stretch;
+        padding: 0.1em 1em;
+
+        >button {
+            font-size: 0.4em;
+            flex: 1
+        }
+    }
+}
+
+button {
+    min-height: 1em;
+    font-size: 1em;
+    line-height: 1em;
+    border-radius: 0.2em;
+    font-family: inherit;
+    letter-spacing: -0.05em;
+    background-color: #ff4b4b;
+    color: #fff;
+    box-shadow: inset 0 -1.3em 0 -1em rgba(0, 0, 0, 0.161);
+    border: 0.05em solid darkred;
+    border-style: outset;
+    padding: 0 0.3em;
+    text-shadow: 0.04em 0.08em rgb(106 0 0),
+        0 0.08em 0.4em #00000071;
+    cursor: pointer;
+
+    &.green {
+        background-color: #66ff25;
+        border: 0.04em solid rgb(7, 139, 0);
+        text-shadow: 0.04em 0.08em rgb(4, 106, 0), 0 0.08em 0.4em #00000071;
+
+        &:hover {
+            background-color: rgb(72, 239, 0);
+        }
+    }
+
+    &:hover {
+        background-color: rgb(255, 49, 49);
+    }
+
+    &:active {
+        transform: scale(0.98);
     }
 }
