@@ -117,11 +117,18 @@
                     דפדפן של הסאבקאונט
                     ואז Interact. ויפתח חלונית שתאפשר לכם ללחוץ על הכפתורים האלו בזמן לייב.</p>
             </div>
-            <div class="view" box>
+            <div class="view" box style="--high2: lime;">
                 <h2>הוספה ללייב:</h2>
-                <input type="text" id="genLink" readonly style="font-size: 1em; padding: 0.4em; --high2: lime;">
+                <input type="text" id="genLink" readonly style="font-size: 1em; padding: 0.4em;">
                 <p>פשוט העתיקו את הכתובת שפה מעל, צרו אובייקט דפדפן חדש ב OBS והדביקו את הכתובת שם. זהו!</p>
                 <br>
+                <strong>שימו לב!</strong> בשביל שהזיהוי של סאבים חדשים יעבוד חייב שהתוכנה
+                <a href="https://www.olympicangelabz.com/StreamerPlus.php"
+                    alt="סטרימר פלוס 0 כמות רשומים בזמן אמת">סטרימר פלוס</a><img
+                    src="https://dl.olympicangelabz.com/link/StreamerPlus/streamer.png" style="height:1em"
+                    alt="סטרימר פלוס לוגו" />
+                תהיה פתוחה ברקע בכל הזמן של הלייב.
+                <br><br>
             </div>
         </article>
 
@@ -167,8 +174,8 @@
         <script>
             GenLink();
             function GenLink() {
-                const link = new URL("http://127.0.0.1:5500/view/index.html")
-                //const link = new URL("https://www.olympicangelabz.com/subaton/view?")
+                //const link = new URL("http://127.0.0.1:5500/view/index.html")
+                const link = new URL("https://www.olympicangelabz.com/subaton/view?")
 
                 link.searchParams.set("slApi", wsApi.value)
                 link.searchParams.set("eS", 1)

@@ -14,7 +14,8 @@ var userSettings = {
         donation: true,
         duration: true,
         members: true
-    }
+    },
+    members: {}
 }
 
 class GUI {
@@ -40,8 +41,8 @@ class GUI {
         localStorage.clear()
         window.location.reload();
     }
-    static addTime() {
-        const userData = prompt("כמה זמן להוסיף בדקות?", 0);
+    static addTime(value = "") {
+        const userData = value || prompt("כמה זמן להוסיף בדקות?", 0);
         if (isNaN(userData))
             return;
 
@@ -222,11 +223,10 @@ class TimerApp {
                 <h1>${this.donations.donationSum}$</h1>
             </div>`);
 
-        //TODO: add & handle members to timer
-        if (statBools.members)
+        if (statBools.members && this.members)
             statsHtml.push(`<div>
                 <span>חברי מועדון</span>
-                <h1>${0}</h1>
+                <h1>${this.members}</h1>
             </div>`);
 
         const statsDiv = document.createElement("div");
@@ -433,7 +433,19 @@ function loginStreamlabs() {
 
                 break;
             case "subscription":
+                //if subs is not from YT
+                if (eventData.for != "youtube_account")
+                    return;
+                //new subs is only when msg is none
+                if (eventData.message[0].message != "")
+                    return
                 const memberLevelName = eventData.message[0].membershipLevelName;
+                const memberValue = userSettings.members[memberLevelName];
+                //if none exist
+                if (!memberValue)
+                    return;
+                timer.members = (timer.members || 0) + 1;
+                GUI.addTime(memberValue)
                 break;
         }
     });

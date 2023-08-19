@@ -53,7 +53,8 @@
         donation: userArgs.get("eDo") == 1 || false,
         duration: userArgs.get("eDu") == 1 || false,
         members: false
-      }
+      },
+      members: (userArgs.get("members") && JSON.parse(userArgs.get("members"))) || {}
     };
 
     //copy sockets obj and keep original values if not specified
