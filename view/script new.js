@@ -447,6 +447,23 @@ function loginStreamlabs() {
                 timer.members = (timer.members || 0) + 1;
                 GUI.addTime(memberValue)
                 break;
+
+            case "membershipGift":
+                //if subs is not from YT
+                if (eventData.for != "youtube_account")
+                    return;
+                //new subs is only when msg is none
+                if (eventData.message[0].message != "")
+                    return
+                const giftedMemberLevelName = eventData.message[0].giftMembershipsLevelName;
+                const giftedMemberValue = userSettings.members[giftedMemberLevelName];
+                const giftedCount = Number(eventData.message[0].giftMembershipsCount) || 1;
+                //if none exist
+                if (!giftedMemberValue)
+                    return;
+                timer.members = (timer.members || 0) + giftedCount;
+                GUI.addTime(giftedMemberValue * giftedCount)
+                break;
         }
     });
 }
