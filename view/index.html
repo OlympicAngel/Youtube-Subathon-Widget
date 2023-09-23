@@ -40,7 +40,7 @@
     const url = new URL(window.location.href);
     const userArgs = url.searchParams;
     const modifiedSettings = {
-      sockets: { sl: userArgs.get("slApi") || "" },
+      sockets: { sl: userArgs.get("slApi") || "", se: userArgs.get("seApi") || "" },
       animation: userArgs.get("animate") || "none",
       baseDuration: Number(userArgs.get("duration")) || 60, //base timer duration
       subUpdate: { //timer updates for new subs
