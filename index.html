@@ -59,39 +59,89 @@
                     <br>
                 </div>
                 <hr>
-                <div spliter class="opts">
+                <div class="opts padd">
                     <h2>הגדרות תרומות:</h2>
-                    <div split="0.5" box>
-                        <br>
-                        <label>מזהה SocketAPI של StreamLabs:</label><input type="password" onchange="GenLink()"
-                            id="wsApi">
-                        <sub>*בשביל לזהות תרומות יש צורך בקוד מחשבון הסטריםלאבס שלכם שמאפשר זיהוי בזמן אמת של
-                            תרומות. <strong>אני מדגיש</strong> אין שום סכנה או חשש שיקרה משהו לחשבון שלכם, גם אם בטעות
-                            מישהו מוצא את המזהה הזה! <br>
-                            כל מה שהמזהה הזה מאפשר לעשות זה פשוט <strong>לקבל</strong> מידע בזמן אמת. אין גישה למידע
-                            שכבר קיים, אין גישה לפרטים אישיים, אין שום מידע מלבד למידע על תרומות / רשומים שמתקבל בזמן
-                            אמת.</sub>
-                        <br>
-                        <p style="font-size: 0.7em; margin:0">לא חייב, אבל בלי זה לא יהיה מעקב על תרומות!</p>
-                        <br>
+                    <div spliter style="width:auto; background-color: #000; border-radius: 0.5em; padding:0.2em">
+                        <label split="0.5"><input type="radio" name="wsSelect" value="slApi" checked
+                                onclick="setWsServer('se')"> StreamLabs</label>
+                        <label split="0.5"><input type="radio" name="wsSelect" value="seApi"
+                                onclick="setWsServer('sl')">
+                            StreamElements</label>
                     </div>
-                    <div split="0.5" class="guide view">
-                        <strong>למציאת המזהה:</strong>
-                        <p style="padding: 0.5em; font-size: 0.8em;" class="scroll">
-                            1. כנסו לקישור <a href="https://streamlabs.com/dashboard#/settings/api-settings"
-                                target="_blank">הזה</a> שיפתח
-                            את דף ההגדרות (במידת הצורך התחברו לחשבון שלכם).
-                            <br><br>
-                            2. בתת-התפריט לחצו על "API Tokens":
-                            <a href="https://www.olympicangelabz.com/subaton/apisettings.png" target="_blank">
-                                <img src="https://www.olympicangelabz.com/subaton/apisettings.png" width="100%">
-                            </a>
-                            <br><br>
-                            3. וכעט רק ללחוץ על כפתור העתקה בתיבת הטקסט של "Your Socket API Token":
-                            <a href="https://www.olympicangelabz.com/subaton/socketsettings.png" target="_blank">
-                                <img src="https://www.olympicangelabz.com/subaton/socketsettings.png" width="100%">
-                            </a>
-                        </p>
+                    <p class="se">שימו לב, השימוש כרגע ב StreamElements הוא ניסיוני ולא בדוק על לייב אמיתי!<br>
+                        <small><u>תרומות וסופר צאט אמור לעבוד - אבל - יכול להיות בעיות כמו:</u>
+                            <small>
+                                <br>-תרומה במטבע של 10 שקל עשוי להתפרש כ 10 דולר - לא נבדק.
+                                <br>-חברי מועדון(פיצ'ר לא רישמי) עשוי לא לעבוד - לא נבדק.
+                            </small>
+                            אם אתם משתמשים בסטרים-אלמנטס ורוצים לעזור בפיתוח פנו אלי בדיס.<br><small>הסיבה לכל זה - זה
+                                כי אני לא משתמש בסטרים אלמנטס..</small>
+                        </small><br>
+
+                    </p>
+                    <style id="dynStyle">
+                        .se {
+                            display: none
+                        }
+                    </style>
+                    <Script>
+                        function setWsServer(type) {
+                            dynStyle.innerHTML = `.${type}{display:none}`;
+                            GenLink();
+                        }
+                    </Script>
+                    <div spliter>
+                        <div split="0.5" box>
+                            <br>
+                            <label>מזהה <span class="sl">SocketAPI</span><span class="se">JWT</span> של <span
+                                    class=sl>StreamLabs</span><span class=se>StreamElements</span>
+                                :</label><input type="password" onchange="GenLink()" id="wsApi">
+                            <sub>*בשביל לזהות תרומות יש צורך בקוד מחשבון
+                                <span class="sl">הסטריםלאבס</span><span class="se">סטריםאלמנטס</span>
+                                שלכם שמאפשר זיהוי בזמן אמת של
+                                תרומות. <strong>אני מדגיש</strong> אין שום סכנה או חשש שיקרה משהו לחשבון שלכם,
+                                המזהה הזה לא נשמר בשום מקום מלבד בקישור האישי שלכם שנגיש אך ורק לכם.
+                                <br><b>בשום פנים ואופן
+                                    זה לא נשמר בשרת חיצוני כלשהו!</b>
+                                <br>
+                                כל השימוש בקוד נעשה על אך ורק בכדי להאזין לאירועים בזמן אמת כמו תרומות וחברי
+                                מועדון.</sub>
+                            <br>
+                            <p style="font-size: 0.7em; margin:0">לא חייב, אבל בלי זה לא יהיה מעקב על תרומות!</p>
+                            <br>
+                        </div>
+                        <div split="0.5" class="guide view">
+                            <strong>למציאת המזהה:</strong>
+                            <p style="padding: 0.5em; font-size: 0.8em;" class="scroll">
+                                1. כנסו לקישור
+                                <a href="https://streamlabs.com/dashboard#/settings/api-settings" class="sl"
+                                    target="_blank">הזה</a>
+                                <a href="https://streamelements.com/dashboard/account/channels" class="se"
+                                    target="_blank">הזה</a> שיפתח
+                                את דף ההגדרות (במידת הצורך התחברו לחשבון שלכם).
+                                <br><br>
+                                <span class="sl">
+                                    2. בתת-התפריט לחצו על "API Tokens":
+                                    <a href="https://www.olympicangelabz.com/subaton/apisettings.png" target="_blank">
+                                        <img src="https://www.olympicangelabz.com/subaton/apisettings.png" width="100%">
+                                    </a>
+                                    <br><br>
+                                    3. וכעט רק ללחוץ על כפתור העתקה בתיבת הטקסט של "Your Socket API Token":
+                                    <a href="https://www.olympicangelabz.com/subaton/socketsettings.png"
+                                        target="_blank">
+                                        <img src="https://www.olympicangelabz.com/subaton/socketsettings.png"
+                                            width="100%">
+                                    </a>
+                                </span>
+                                <span class="el">
+                                    2. העתיקו את הקוד על ידי לחיצה על איקון העתקה.
+                                    <a href="https://www.olympicangelabz.com/subaton/swApiSettings.png" target="_blank">
+                                        <img src="https://www.olympicangelabz.com/subaton/swApiSettings.png"
+                                            width="100%">
+                                    </a>
+                                </span>
+                            </p>
+                        </div>
                     </div>
                     <br>
                     <div split="0.9">
@@ -177,7 +227,8 @@
                 //const link = new URL("http://127.0.0.1:5500/view/index.html")
                 const link = new URL("https://www.olympicangelabz.com/subaton/view?")
 
-                link.searchParams.set("slApi", wsApi.value)
+                const wsKey = document.querySelector("input[name=wsSelect]:checked").value;
+                link.searchParams.set(wsKey, wsApi.value)
                 link.searchParams.set("eS", 1)
                 link.searchParams.set("eDo", 1)
                 link.searchParams.set("eDu", 1)
@@ -196,6 +247,11 @@
         </script>
 
         <style>
+            .padd {
+                padding: 1em;
+                box-sizing: border-box;
+            }
+
             .scroll {
                 overflow: auto;
                 height: -webkit-fill-available;
