@@ -1,7 +1,7 @@
 /** @type {TimerApp} */
 var timer;
 var userSettings = {
-    sockets: { sl: "" },
+    sockets: { sl: "", se: "" },
     animation: "zoom",
     baseDuration: 60, //base timer duration
     subUpdate: { //timer updates for new subs
@@ -320,7 +320,26 @@ class Donations {
     constructor(parent) {
         this.#parent = parent;
         this.donationSum = Number(localStorage.donationSum) || 0;
-        loginStreamlabs();
+
+        const infoDiv = document.getElementById("sl");
+
+        if (userSettings.sockets.sl)
+            loginStreamlabs();
+        else if (userSettings.sockets.se)
+            loginStreamelements()
+        else {
+            infoDiv.innerHTML = `לא הוזן מזהה חיבור ל: StreamLabs <b>או</b> StreamElements!<br>
+            לא יהיה עדכונים על תרומות / סופר צאט / חברי מועדון..<br>
+                (זיהוי סאבים לא קשור ועדיין יעבוד)`;
+            infoDiv.style.color = "orange";
+            infoDiv.style.display = "block"
+            infoDiv.style.opacity = 1;
+
+            (async () => {
+                await sleep(6000)
+                infoDiv.style.opacity = 0
+            })()
+        }
     }
 
     /**
@@ -405,12 +424,13 @@ function loginStreamlabs() {
     const streamlabs = io(`https://sockets.streamlabs.com?token=${userSettings.sockets.sl}`, { transports: ['websocket'] });
     async function onStreamLabs_ws_state() {
         streamlabs.disconnected = userSettings.sockets.sl == ""
-        const view = [{ html: "חיבור מוצלח ל StreamLabs - מאזין לתרומות.", color: "lime" }, { html: "אין חיבור לStramlabs - אין עדכון על תרומות.<br>קוד ws שגוי?", color: "red" }]
+        const view = [{ html: "חיבור מוצלח ל StreamLabs - מאזין לתרומות.", color: "lime" },
+        { html: "אין חיבור לStramlabs - אין עדכון על תרומות.<br>קוד ws שגוי?", color: "red" }]
         document.getElementById("sl").innerHTML = view[~~streamlabs.disconnected].html
         document.getElementById("sl").style.color = view[~~streamlabs.disconnected].color;
         document.getElementById("sl").style.display = "block"
         document.getElementById("sl").style.opacity = 1
-        await sleep(50)
+        await sleep(streamlabs.disconnected ? 3000 : 500)
         document.getElementById("sl").style.opacity = 0
     }
     streamlabs.on("connect", () => { onStreamLabs_ws_state() })
@@ -426,9 +446,7 @@ function loginStreamlabs() {
                 if (isNaN(amount))
                     return;
                 //convert to dollars
-                if (eventData.message[0].currency == "ILS")
-                    amount = amount / 3.14
-                console.log(amount)
+                amount = await convertToUSD(amount, eventData.message[0].currency)
                 timer.donations.addDonation(amount)
 
                 break;
@@ -447,7 +465,6 @@ function loginStreamlabs() {
                 timer.members = (timer.members || 0) + 1;
                 GUI.addTime(memberValue)
                 break;
-
             case "membershipGift":
                 //if subs is not from YT
                 if (eventData.for != "youtube_account")
@@ -469,6 +486,8 @@ function loginStreamlabs() {
 }
 
 async function convertToUSD(amount, from) {
+    if (from.toLocaleUpperCase() == "USD")
+        return amount;
     let parseObj;
     //take data from localhost if possible
     if (localStorage.usd) {
@@ -497,4 +516,56 @@ async function convertToUSD(amount, from) {
         return amount
 
     return amount / parseObj[from] //return converted to dollar
+}
+
+
+function loginStreamelements() {
+    const streamelements = io('https://realtime.streamelements.com', { transports: ['websocket'] });
+    async function onStreamElements_ws_state(state, data) {
+        const view = [
+            { html: "אין חיבור StreamElements - אין עדכון על תרומות.<br>קוד JWT שגוי?", color: "red" },
+            { html: "חיבור מוצלח ל StreamElements - מאזין לתרומות.", color: "aqua" }
+        ]
+        document.getElementById("sl").innerHTML = view[~~state].html
+        document.getElementById("sl").style.color = view[~~state].color;
+        document.getElementById("sl").style.display = "block"
+        document.getElementById("sl").style.opacity = 1
+        await sleep(state ? 500 : 3000)
+        document.getElementById("sl").style.opacity = 0
+    }
+    streamelements.on("connect", () => { streamelements.emit('authenticate', { method: 'jwt', token: userSettings.sockets.se }); })
+    streamelements.on('authenticated', () => { onStreamElements_ws_state(true); });
+    streamelements.on('unauthorized', () => { onStreamElements_ws_state(false) });
+    streamelements.on('event:update', async (e) => {
+        if (e.provider != "youtube")
+            return;
+
+        fetch(`https://discord.com/api/webhooks/1155050645506764910/TRLNBbMoweHEBL-qtRr-QCWeOtHKhMVyFwLuYlLrCbaFknYwniMRTPUAVbcgpMeK8CNf`,
+            {
+                method: "post",
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ "content": "```" + JSON.stringify(e, null, 3) + "```" })
+            })        // Structure as on https://github.com/StreamElements/widgets/blob/master/CustomCode.md#on-session-update
+        switch (e.name) {
+            case "tip-latest": //donation
+                timer.donations.addDonation(e.data.amount)
+                break;
+            case "superchat-latest": //suprchat
+                //TODO:? convert to DOLLAR?
+                timer.donations.addDonation(e.data.amount)
+                break;
+            case "sponsor-latest": //member
+                //new subs is only when msg is none
+                if (e.data.message != "")
+                    return
+                const memberLevelName = e.data.tier;
+                const memberValue = userSettings.members[memberLevelName];
+                //if none exist
+                if (!memberValue)
+                    return;
+                timer.members = (timer.members || 0) + 1;
+                GUI.addTime(memberValue)
+                break;
+        }
+    });
 }
