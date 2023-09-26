@@ -347,6 +347,9 @@ class Donations {
      * @param {Number} donationAmount 
      */
     addDonation(donationAmount) {
+        if (isNaN(donationAmount))
+            return console.warn("got invalid donation amount", donationAmount, new Error().stack)
+        donationAmount = Number(donationAmount)
         //if donation should not add time - exit
         if (userSettings.durationPerDollar == 0)
             return;
@@ -486,6 +489,9 @@ function loginStreamlabs() {
 }
 
 async function convertToUSD(amount, from) {
+    if (isNaN(amount))
+        return console.warn("got invalid money amount", donationAmount, new Error().stack)
+    amount = Number(amount)
     if (from.toLocaleUpperCase() == "USD")
         return amount;
     let parseObj;
