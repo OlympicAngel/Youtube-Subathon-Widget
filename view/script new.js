@@ -41,8 +41,8 @@ class GUI {
         localStorage.clear()
         window.location.reload();
     }
-    static addTime(value = "") {
-        const userData = value || prompt("כמה זמן להוסיף בדקות?", 0);
+    static async addTime(value = "") {
+        const userData = value || (await customPrompt("כמה זמן להוסיף בדקות?", 0));
         if (isNaN(userData))
             return;
 
@@ -54,8 +54,8 @@ class GUI {
         if (minutes > 0)
             timer.VisualAddTime(minutes * 60)
     }
-    static addDonation() {
-        const userData = prompt("מה הסכום תרומה בדולרים?", 0);
+    static async addDonation() {
+        const userData = await customPrompt("מה הסכום תרומה בדולרים?", 0);
         if (isNaN(userData))
             return;
 
