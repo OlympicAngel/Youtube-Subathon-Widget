@@ -186,9 +186,19 @@ class TimerApp {
         }))
 
         //if need to add new spans to DOM
+        let addedDots = false;
         for (let i = this.#TimerContainer.childNodes.length;
             i < elements.length; i++) {
             this.#TimerContainer.appendChild(elements[i])
+            if (elements[i].textContent == ":") //if added "dots" element
+                addedDots = true; //mark as added dots to visaully sync dots blink
+        }
+        if (addedDots) {
+            this.#TimerContainer.querySelectorAll("span.dots").forEach(e => {
+                e.style.animation = 'none';
+                e.offsetHeight;
+                e.style.animation = "";
+            })
         }
     }
 
@@ -245,9 +255,9 @@ class TimerApp {
 
         if (this.donations.donationSum / 100 > 10 || true) {
             statsHtml.push(`<div style="background: #1b63b1; position:relative; z-index:99999;">
-                <h2 style="margin: 0; color:lime">כיף שהלייב הלך חלק!</h2>
-                <h3 style="margin: 0;">אם תוכל לפרגן בטיפ על השימוש בסאבתון אני ישמח!</h3>
-                <section style="font-size:0.9em">
+                <h3 style="margin: 0; color:lime">כיף שהלייב הלך חלק!</h3>
+                <h4 style="margin: 0; line-height:0.9em">אם תוכל לפרגן בטיפ על השימוש בסאבתון אני ישמח!</h4>
+                <section style="font-size:0.6em">
                 https://streamlabs.com/olympicangel1/tip
                 </section>
                 <small>אם לא אז לפחות shout-out.</small>
@@ -452,8 +462,10 @@ function loginStreamlabs() {
     const streamlabs = io(`https://sockets.streamlabs.com?token=${userSettings.sockets.sl}`, { transports: ['websocket'] });
     async function onStreamLabs_ws_state() {
         streamlabs.disconnected = userSettings.sockets.sl == ""
-        const view = [{ html: "חיבור מוצלח ל StreamLabs - מאזין לתרומות.", color: "lime" },
-        { html: "אין חיבור לStramlabs - אין עדכון על תרומות.<br>קוד ws שגוי?", color: "red" }]
+        const view = [
+            { html: "חיבור מוצלח ל StreamLabs - מאזין לתרומות.", color: "lime" },
+            { html: "אין חיבור לStramlabs - אין עדכון על תרומות.<br>קוד ws שגוי?", color: "red" }
+        ]
         document.getElementById("sl").innerHTML = view[~~streamlabs.disconnected].html
         document.getElementById("sl").style.color = view[~~streamlabs.disconnected].color;
         document.getElementById("sl").style.display = "block"
@@ -482,8 +494,8 @@ function loginStreamlabs() {
                 //if subs is not from YT
                 if (eventData.for != "youtube_account")
                     return;
-                //new subs is only when msg is none
-                if (eventData.message[0].message != "")
+                //new subs is only when msg is none || or membership is more than 1 month
+                if (eventData.message[0].message != "" || eventData.message[0].months > 1)
                     return
                 const memberLevelName = eventData.message[0].membershipLevelName;
                 const memberValue = userSettings.members[memberLevelName];

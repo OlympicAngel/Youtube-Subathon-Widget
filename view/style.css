@@ -260,16 +260,16 @@ fly warp {
 
 .stats>div {
     flex: 1;
-    background-color: rgba(0, 0, 0, 0.4);
+    background-color: rgba(0, 0, 0, 0.6);
     border-radius: 1em;
-    min-width: calc(50% - 0.5em);
-    padding: 0.5em 1em;
+    min-width: calc(50% - 2.5em);
+    padding: 1em;
     position: relative;
     box-shadow: inset 0 -0.15em 0 0.07em rgba(0, 0, 0, 0.4745098039), 0 1em 0.4em -0.6em rgba(0, 0, 0, 0.4078431373);
 }
 
 .stats>div:nth-child(-n+2) {
-    background-color: rgba(20, 171, 0, 0.486);
+    background-color: rgba(20, 171, 0, 0.6);
 }
 
 .stats>div>h1 {
