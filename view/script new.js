@@ -204,7 +204,7 @@ class TimerApp {
 
     async VisualAddTime(addedTime) {
         const fly = document.createElement("fly");
-        fly.innerHTML = "<warp>" + format(addedTime) + " +</warp"
+        fly.innerHTML = "<warp>" + format(addedTime) + " +</warp>"
         this.#AnimationContainer.appendChild(fly);
         const style = getComputedStyle(fly)
         const animationDuration = Number(Math.max(...style.animationDuration.replace(/[^0-9.,]/g, "").split(","))),
