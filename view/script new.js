@@ -215,6 +215,7 @@ class TimerApp {
             statsHtml.push(`<div>
                 <span>אורך הלייב:</span>
                 <h1>${format((Date.now() - this.startTime - this.#pauseTime) / 1000)}</h1>
+                ${this.#pauseTime && `<small>לא כולל זמן השהייה של ${format(this.#pauseTime / 1000)}</small>` || ""}
             </div>`);
 
         if (statBools.donation && this.donations.donationSum > 0)
