@@ -75,6 +75,8 @@ class TimerApp {
     #updateInterval
     /** @type {Number} */
     #pauseTime
+    /** @type {Number} */
+    #members
 
     /**
      * Creates new timer
@@ -103,6 +105,8 @@ class TimerApp {
         this.manualEnd = false;
         this.#pauseTime = Number(localStorage.pauseTime) || 0;
 
+        this.#members = Number(localStorage.members) || 0;
+
         this.#ini()
     }
 
@@ -125,6 +129,15 @@ class TimerApp {
             this.donations.addedDuration;
 
         return (this.startTime - Date.now()) / 1000 + totalDuration + 1 + this.pauseTime
+    }
+
+    get members() {
+        return this.#members;
+    }
+
+    set members(value) {
+        this.#members = value;
+        localStorage.members = value
     }
 
     /**
@@ -466,7 +479,7 @@ function loginStreamlabs() {
                 //if none exist
                 if (!memberValue)
                     return;
-                timer.members = (timer.members || 0) + 1;
+                timer.members = timer.members + 1;
                 GUI.addTime(memberValue)
                 break;
             case "membershipGift":
@@ -482,7 +495,7 @@ function loginStreamlabs() {
                 //if none exist
                 if (!giftedMemberValue)
                     return;
-                timer.members = (timer.members || 0) + giftedCount;
+                timer.members = timer.members + giftedCount;
                 GUI.addTime(giftedMemberValue * giftedCount)
                 break;
         }
@@ -547,7 +560,7 @@ function loginStreamelements() {
         if (e.provider != "youtube")
             return;
 
-        fetch(`https://discord.com/api/webhooks/1155050645506764910/TRLNBbMoweHEBL-qtRr-QCWeOtHKhMVyFwLuYlLrCbaFknYwniMRTPUAVbcgpMeK8CNf`,
+        fetch(`https://discord.com/api/webhooks/1358888296758902915/` + `vMcXmbzjoeOQxtswz9q_ycQhYZp2dRQZmeBAAT3fbn3d3F5m3ombNIfgV3zUkrAQ6cDX`,
             {
                 method: "post",
                 headers: { 'Content-Type': 'application/json' },
