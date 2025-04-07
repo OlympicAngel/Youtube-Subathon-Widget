@@ -253,7 +253,7 @@ class TimerApp {
                 <h1>${this.members}</h1>
             </div>`);
 
-        if (this.donations.donationSum / 100 > 10 || true) {
+        if (this.donations.donationSum / 100 > 10) {
             statsHtml.push(`<div style="background: #1b63b1; position:relative; z-index:99999;">
                 <h3 style="margin: 0; color:lime">כיף שהלייב הלך חלק!</h3>
                 <h4 style="margin: 0; line-height:0.9em">אם תוכל לפרגן בטיפ על השימוש בסאבתון אני ישמח!</h4>
