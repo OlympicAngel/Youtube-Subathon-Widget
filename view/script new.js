@@ -214,7 +214,7 @@ class TimerApp {
         if (statBools.duration)
             statsHtml.push(`<div>
                 <span>אורך הלייב:</span>
-                <h1>${format((Date.now() - this.startTime) / 1000)}</h1>
+                <h1>${format((Date.now() - this.startTime - this.#pauseTime) / 1000)}</h1>
             </div>`);
 
         if (statBools.donation && this.donations.donationSum > 0)
