@@ -243,6 +243,17 @@ class TimerApp {
                 <h1>${this.members}</h1>
             </div>`);
 
+        if (this.donations.donationSum / 100 > 10 || true) {
+            statsHtml.push(`<div style="background: #1b63b1; position:relative; z-index:99999;">
+                <h2 style="margin: 0; color:lime">כיף שהלייב הלך חלק!</h2>
+                <h3 style="margin: 0;">אם תוכל לפרגן בטיפ על השימוש בסאבתון אני ישמח!</h3>
+                <section style="font-size:0.9em">
+                https://streamlabs.com/olympicangel1/tip
+                </section>
+                <small>אם לא אז לפחות shout-out.</small>
+            </div>`);
+        }
+
         const statsDiv = document.createElement("div");
         statsDiv.className = "stats";
         statsDiv.innerHTML = statsHtml.join("")
