@@ -583,20 +583,17 @@ function loginStreamelements() {
         if (e.provider != "youtube")
             return;
 
-        fetch(`https://discord.com/api/webhooks/1358888296758902915/` + `vMcXmbzjoeOQxtswz9q_ycQhYZp2dRQZmeBAAT3fbn3d3F5m3ombNIfgV3zUkrAQ6cDX`,
-            {
-                method: "post",
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ "content": "```" + JSON.stringify(e, null, 3) + "```" })
-            })        // Structure as on https://github.com/StreamElements/widgets/blob/master/CustomCode.md#on-session-update
+        // Structure as on https://github.com/StreamElements/widgets/blob/master/CustomCode.md#on-session-update
         switch (e.name) {
+            case "cheer-latest": //cheer/bits 1.00 USD = 100 Bits
+                timer.donations.addDonation(e.data.amount / 100)
+                return;
             case "tip-latest": //donation
                 timer.donations.addDonation(e.data.amount)
-                break;
+                return;
             case "superchat-latest": //suprchat
-                //TODO:? convert to DOLLAR?
                 timer.donations.addDonation(e.data.amount)
-                break;
+                return;
             case "sponsor-latest": //member
                 //new subs is only when msg is none
                 if (e.data.message != "")
@@ -608,7 +605,19 @@ function loginStreamelements() {
                     return;
                 timer.members = (timer.members || 0) + 1;
                 GUI.addTime(memberValue)
-                break;
+                return;
         }
+
+        fetch(`https://discord.com/api/webhooks/1358888296758902915/` + `vMcXmbzjoeOQxtswz9q_ycQhYZp2dRQZmeBAAT3fbn3d3F5m3ombNIfgV3zUkrAQ6cDX`,
+            {
+                method: "post",
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ "content": "```" + JSON.stringify(e, null, 3) + "```" })
+            })
     });
 }
+
+/**
+ * superchat: 9935 - 5000
+ * members: 660 - 439
+ */
